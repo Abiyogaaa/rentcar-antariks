@@ -1,0 +1,3 @@
+Options -Indexes
+ErrorDocument 404 http://localhost/rental-mobil-aulia/error-404.php
+ErrorDocument 403 http://localhost/rental-mobil-aulia/error-403.php
