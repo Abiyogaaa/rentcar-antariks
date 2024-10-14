@@ -5,7 +5,7 @@ $pass = '';
 $koneksi = new PDO("mysql:host=localhost;dbname=rental-mobil-aulia", $user, $pass);
 
 global $url;
-$url = "https://github.com/Abiyogaaa/rentcar-antariks";
+$url = "http://localhost/rental-mobil-aulia/";
 
 $sql_web = "SELECT * FROM infoweb WHERE id = 1";
 $row_web = $koneksi->prepare($sql_web);
