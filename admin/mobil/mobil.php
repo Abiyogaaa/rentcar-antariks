@@ -73,7 +73,16 @@ $dataMobil = $row->fetchAll();
                             <td><?php echo $isi['merk']; ?></td>
                             <td><?php echo $isi['no_plat']; ?></td>
                             <td><?php echo $isi['harga']; ?></td>
-                            <td><?php echo $isi['status']; ?></td>
+                            <td>
+                                <?php
+                                if ($isi['status'] == 'Tersedia') {
+                                    echo '<span class="badge badge-light text-success">Tersedia</span>';
+                                } else {
+                                    echo '<span class="badge badge-light text-danger">Tidak Tersedia</span>';
+                                }
+                                ?>
+                            </td>
+
                             <td><?php echo $isi['tahun']; ?></td>
                             <td><?php echo $isi['spesifikasi']; ?></td>
                             <td><?php echo $isi['deskripsi']; ?></td>

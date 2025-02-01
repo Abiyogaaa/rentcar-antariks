@@ -1,3 +1,9 @@
+<?php
+$base_url = "http://" . $_SERVER['HTTP_HOST'] . "";
+
+// Tentukan URL dashboard berdasarkan level user
+$p = $base_url . "/kontak.php"; // Default untuk non-admin
+?>
 </div>
 <footer class="rental-footer">
     <div class="footer-content">
@@ -8,20 +14,21 @@
         <div class="footer-section mx-2">
             <h3>Our Services</h3>
             <ul>
-                <li><a href="#">Premium Fleet</a></li>
-                <li><a href="#">Corporate Rentals</a></li>
-                <li><a href="#">Wedding Packages</a></li>
-                <li><a href="#">Airport Transfers</a></li>
-                <li><a href="#">Long-term Leasing</a></li>
+                <li><a href="<?= $p ?>">Armada Premium</a></li>
+                <li><a href="<?= $p ?>">Penyewaan Korporat</a></li>
+                <li><a href="<?= $p ?>">Paket Pernikahan</a></li>
+                <li><a href="<?= $p ?>">Transfer Bandara</a></li>
+                <li><a href="<?= $p ?>">Sewa Jangka Panjang</a></li>
+
             </ul>
         </div>
         <div class="footer-section mx-2">
             <h3>Contact Us</h3>
-            <p><i class="fas fa-envelope"></i> auliarentcar@gmail.com</p>
-            <p><i class="fas fa-phone"></i> (555) 123-4567</p>
-            <p><i class="fas fa-map-marker-alt"></i> Banjarbaru, Kalimantan Selatan</p>
+            <p><i class="fas fa-envelope"></i> <?= $info_web->email; ?></p>
+            <p><i class="fas fa-phone"></i> <?= $info_web->telp; ?></p>
+            <p><i class="fas fa-map-marker-alt"></i> <?= $info_web->alamat; ?></p>
         </div>
-        <div class="footer-section mx-2">
+        <!-- <div class="footer-section mx-2">
             <h3>Follow Us</h3>
             <div class="social-icons">
                 <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
@@ -29,10 +36,10 @@
                 <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
                 <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
             </div>
-        </div>
+        </div> -->
     </div>
     <div class="footer-bottom">
-        <p>&copy; 2024 AULIA.RENTCAR All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+        <p>&copy; 2024 <?= $info_web->nama_rental; ?> All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
     </div>
 </footer>
 

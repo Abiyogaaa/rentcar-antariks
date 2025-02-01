@@ -13,9 +13,10 @@ $title_web = "LUXURY RENT A CAR";
 
 <div class="container mt-5">
     <h1 id="tampil" class="text-center mb-5">
-        <span class="display-4 fw-bold text-primary">LUXURY RENT A CAR</span>
+        <span class="display-4 fw-bold text-primary">SEWA MOBIL ANTARIKS</span>
         <br>
-        <span class="h3 fw-light text-secondary fst-italic">Our Exclusive Fleet</span>
+        <span class="h3 fw-light text-secondary fst-italic">Armada Eksklusif Kami</span>
+
     </h1>
     <div class="row justify-content-center">
         <?php

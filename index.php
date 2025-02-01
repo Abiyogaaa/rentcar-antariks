@@ -102,7 +102,7 @@ $title_web = "RENTAL MOBIL";
         <button id="prev">
             < </button>
                 <button id="next">></button>
-                <button id="back">See All &#8599;</button>
+                <button id="back">Lihat Semua &#8599;</button>
     </div>
 
 

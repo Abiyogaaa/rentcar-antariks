@@ -134,7 +134,24 @@ $total_harga = 0;
                                 <td><?= $isi['tanggal']; ?></td>
                                 <td><?= $isi['lama_sewa']; ?> hari</td>
                                 <td>Rp. <?= number_format($isi['total_harga']); ?></td>
-                                <td><?= $isi['konfirmasi_pembayaran']; ?></td>
+                                <td>
+                                    <?php
+                                    $status = $isi['konfirmasi_pembayaran']; // Ambil nilai status pembayaran
+                                    $badge_class = ''; // Variabel untuk kelas badge
+
+                                    // Tentukan kelas badge berdasarkan status
+                                    if ($status == 'Belum Bayar') {
+                                        $badge_class = 'bg-danger'; // Merah untuk "Belum Bayar"
+                                    } elseif ($status == 'Sedang di proses') {
+                                        $badge_class = 'bg-warning'; // Kuning untuk "Sedang di proses"
+                                    } elseif ($status == 'Pembayaran di terima') {
+                                        $badge_class = 'bg-success'; // Hijau untuk "Pembayaran di terima"
+                                    }
+
+                                    // Tampilkan badge dengan kelas yang sesuai
+                                    echo '<span class="badge ' . $badge_class . '">' . $status . '</span>';
+                                    ?>
+                                </td>
                                 <td>
                                     <a class="btn btn-primary" href="bayar.php?id=<?= $isi['kode_booking']; ?>"
                                         role="button">Detail</a>

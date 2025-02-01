@@ -1,6 +1,6 @@
 <?php
 require '../../koneksi/koneksi.php';
-$title_web = 'Home';
+$title_web = 'Informasi Page';
 include '../header.php';
 if (empty($_SESSION['USER'])) {
     session_start();

@@ -1,10 +1,24 @@
+<?php
+session_start();
+
+// Ambil URL dasar dari proyek
+$base_url = "http://" . $_SERVER['HTTP_HOST'] . "/rental-mobil-aulia/";
+
+// Tentukan URL dashboard berdasarkan level user
+$dashboard_url = $base_url . "index.php"; // Default untuk non-admin
+if (isset($_SESSION['USER']['level']) && $_SESSION['USER']['level'] == 'admin') {
+    $dashboard_url = $base_url . "admin/informasi/dashboard.php";
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AULIA.RENTCAR</title>
+    <title>Rentcar-Antariks</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -56,7 +70,9 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <a class="navbar-brand font-weight-bold" href="index.php">AULIA.RENTCAR</a>
+            <a href="dashboard.php">
+                <img src="<?php echo $url; ?>images/rentcar.svg" alt="Logo" style="width: 50px; height: auto; ">
+            </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -176,9 +192,16 @@
                                                 </div>
                                             </form>
                                         </div>
+
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                                            <a href="<?= $dashboard_url ?>" class="btn btn-secondary">
+                                                <i class="fas fa-home"></i> Dashboard
+                                            </a>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                <i class="fas fa-times"></i> Tutup
+                                            </button>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>

@@ -3,7 +3,52 @@
 require '../../koneksi/koneksi.php';
 $title_web = 'Dashboard';
 include '../header.php';
+
+// Query untuk menghitung jumlah akun (kecuali admin), total mobil, mobil tersedia, dan daftar booking terkonfirmasi
+$queries = [
+    "SELECT COUNT(*) AS total FROM login WHERE level != 'admin'",
+    "SELECT COUNT(*) AS total FROM mobil",
+    "SELECT COUNT(*) AS total FROM mobil WHERE status = 'tersedia'",
+    "SELECT COUNT(*) AS total FROM booking WHERE konfirmasi_pembayaran = 'Pembayaran di terima'"
+];
+
+$results = [];
+foreach ($queries as $query) {
+    $stmt = $koneksi->prepare($query);
+    $stmt->execute();
+    $results[] = $stmt->fetch(PDO::FETCH_OBJ)->total;
+}
+
+// Query untuk jumlah booking berdasarkan tanggal (tgl_input)
+$query_chart = "SELECT tgl_input, COUNT(*) AS total FROM booking GROUP BY tgl_input ORDER BY tgl_input";
+$stmt_chart = $koneksi->prepare($query_chart);
+$stmt_chart->execute();
+$bookings = $stmt_chart->fetchAll(PDO::FETCH_ASSOC);
+
+// Pisahkan data untuk Chart
+$labels = [];
+$values = [];
+
+foreach ($bookings as $row) {
+    $labels[] = $row['tgl_input'];  // Tanggal booking
+    $values[] = (int)$row['total']; // Jumlah booking
+}
+
+// Konversi ke JSON untuk JavaScript
+$labels_json = json_encode($labels);
+$values_json = json_encode($values);
+
+// Query untuk daftar booking terbaru (notifikasi pemesan baru)
+$query_booking = "SELECT kode_booking, nama FROM booking ORDER BY tgl_input DESC LIMIT 5";
+$stmt_booking = $koneksi->prepare($query_booking);
+$stmt_booking->execute();
+$new_bookings = $stmt_booking->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 
 <header class="mb-3">
     <a href="#" class="burger-btn d-block d-xl-none">
@@ -24,12 +69,12 @@ include '../header.php';
                             <div class="row">
                                 <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
                                     <div class="stats-icon purple mb-2">
-                                        <i class="iconly-boldShow"></i>
+                                        <i class="iconly-boldProfile"></i>
                                     </div>
                                 </div>
                                 <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                    <h6 class="text-muted font-semibold">Profile Views</h6>
-                                    <h6 class="font-extrabold mb-0">112.000</h6>
+                                    <h6 class="text-muted font-semibold">User</h6>
+                                    <h6 class="font-extrabold mb-0"> <?= $results[0] ?></h6>
                                 </div>
                             </div>
                         </div>
@@ -41,12 +86,12 @@ include '../header.php';
                             <div class="row">
                                 <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
                                     <div class="stats-icon blue mb-2">
-                                        <i class="iconly-boldProfile"></i>
+                                        <i class="fas fa-car"></i>
                                     </div>
                                 </div>
                                 <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                    <h6 class="text-muted font-semibold">Followers</h6>
-                                    <h6 class="font-extrabold mb-0">183.000</h6>
+                                    <h6 class="text-muted font-semibold">Total Mobil</h6>
+                                    <h6 class="font-extrabold mb-0"><?= $results[1] ?></h6>
                                 </div>
                             </div>
                         </div>
@@ -58,12 +103,12 @@ include '../header.php';
                             <div class="row">
                                 <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
                                     <div class="stats-icon green mb-2">
-                                        <i class="iconly-boldAdd-User"></i>
+                                        <i class="fas fa-car"></i>
                                     </div>
                                 </div>
                                 <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                    <h6 class="text-muted font-semibold">Following</h6>
-                                    <h6 class="font-extrabold mb-0">80.000</h6>
+                                    <h6 class="text-muted font-semibold">Mobil Tersedia</h6>
+                                    <h6 class="font-extrabold mb-0"><?= $results[2] ?></h6>
                                 </div>
                             </div>
                         </div>
@@ -79,14 +124,15 @@ include '../header.php';
                                     </div>
                                 </div>
                                 <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                    <h6 class="text-muted font-semibold">Saved Post</h6>
-                                    <h6 class="font-extrabold mb-0">112</h6>
+                                    <h6 class="text-muted font-semibold">Sedang di proses</h6>
+                                    <h6 class="font-extrabold mb-0"><?= $results[3] ?></h6>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- Chart -->
             <div class="row">
                 <div class="col-12">
                     <div class="card">
@@ -94,184 +140,119 @@ include '../header.php';
                             <h4>Profile Visit</h4>
                         </div>
                         <div class="card-body">
-                            <div id="chart-profile-visit"></div>
+                            <div id="chart-profile-visitx"></div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12 col-xl-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Profile Visit</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-7">
-                                    <div class="d-flex align-items-center">
-                                        <svg class="bi text-primary" width="32" height="32" fill="blue"
-                                            style="width:10px">
-                                            <use
-                                                xlink:href="assets/static/images/bootstrap-icons.svg#circle-fill" />
-                                        </svg>
-                                        <h5 class="mb-0 ms-3">Europe</h5>
-                                    </div>
-                                </div>
-                                <div class="col-5">
-                                    <h5 class="mb-0 text-end">862</h5>
-                                </div>
-                                <div class="col-12">
-                                    <div id="chart-europe"></div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-7">
-                                    <div class="d-flex align-items-center">
-                                        <svg class="bi text-success" width="32" height="32" fill="blue"
-                                            style="width:10px">
-                                            <use
-                                                xlink:href="assets/static/images/bootstrap-icons.svg#circle-fill" />
-                                        </svg>
-                                        <h5 class="mb-0 ms-3">America</h5>
-                                    </div>
-                                </div>
-                                <div class="col-5">
-                                    <h5 class="mb-0 text-end">375</h5>
-                                </div>
-                                <div class="col-12">
-                                    <div id="chart-america"></div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-7">
-                                    <div class="d-flex align-items-center">
-                                        <svg class="bi text-danger" width="32" height="32" fill="blue"
-                                            style="width:10px">
-                                            <use
-                                                xlink:href="assets/static/images/bootstrap-icons.svg#circle-fill" />
-                                        </svg>
-                                        <h5 class="mb-0 ms-3">Indonesia</h5>
-                                    </div>
-                                </div>
-                                <div class="col-5">
-                                    <h5 class="mb-0 text-end">1025</h5>
-                                </div>
-                                <div class="col-12">
-                                    <div id="chart-indonesia"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-xl-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Latest Comments</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover table-lg">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Comment</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="col-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="../../assets/compiled/jpg/5.jpg">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Si Cantik</p>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class=" mb-0">Congratulations on your graduation!</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="col-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="../../assets/compiled/jpg/2.jpg">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Si Ganteng</p>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class=" mb-0">Wow amazing design! Can you make another tutorial for
-                                                    this design?</p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+            <!-- Tambahkan CDN FontAwesome dan ApexCharts -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+            <script>
+                var options = {
+                    series: [{
+                        name: 'Total Booking',
+                        data: <?= $values_json ?> // Data jumlah booking
+                    }],
+                    chart: {
+                        type: 'line',
+                        height: 350
+                    },
+                    xaxis: {
+                        categories: <?= $labels_json ?>, // Label tanggal booking
+                        title: {
+                            text: 'Tanggal'
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Jumlah Booking'
+                        }
+                    }
+                };
+
+                var chart = new ApexCharts(document.querySelector("#chart-profile-visitx"), options);
+                chart.render();
+            </script>
         </div>
         <div class="col-12 col-lg-3">
             <div class="card">
                 <div class="card-body py-4 px-4">
                     <div class="d-flex align-items-center">
                         <div class="avatar avatar-xl">
-                            <img src="../../assets/compiled/jpg/1.jpg" alt="Face 1">
+                            <img src="<?php echo $url; ?>images/rentcar.svg" alt="Face 1">
                         </div>
                         <div class="ms-3 name">
-                            <h5 class="font-bold">John Duck</h5>
-                            <h6 class="text-muted mb-0">@johnducky</h6>
+                            <h5 class="font-bold"><?php echo $_SESSION['USER']['nama_pengguna']; ?></h5>
+                            <!-- <h6 class="text-muted mb-0">is <?php echo $_SESSION['USER']['username']; ?></h6> -->
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- Notifikasi Pemesan Baru -->
             <div class="card">
                 <div class="card-header">
                     <h4>Recent Messages</h4>
                 </div>
                 <div class="card-content pb-4">
-                    <div class="recent-message d-flex px-4 py-3">
-                        <div class="avatar avatar-lg">
-                            <img src="../../assets/compiled/jpg/4.jpg">
+                    <?php if (count($new_bookings) > 0): ?>
+                        <?php foreach ($new_bookings as $booking): ?>
+                            <div class="recent-message d-flex px-4 py-3">
+                                <div class="avatar avatar-lg">
+                                    <!-- <img src="../../assets/compiled/jpg/default.jpg" alt="User"> -->
+                                </div>
+                                <div class="name ms-4">
+                                    <h5 class="mb-1"><?= htmlspecialchars($booking['nama']) ?></h5>
+                                    <h6 class="text-muted mb-0">Kode Booking: <?= htmlspecialchars($booking['kode_booking']) ?></h6>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="text-center text-muted py-3">
+                            <p>Tidak ada pemesan baru.</p>
                         </div>
-                        <div class="name ms-4">
-                            <h5 class="mb-1">Hank Schrader</h5>
-                            <h6 class="text-muted mb-0">@johnducky</h6>
-                        </div>
-                    </div>
-                    <div class="recent-message d-flex px-4 py-3">
-                        <div class="avatar avatar-lg">
-                            <img src="../../assets/compiled/jpg/5.jpg">
-                        </div>
-                        <div class="name ms-4">
-                            <h5 class="mb-1">Dean Winchester</h5>
-                            <h6 class="text-muted mb-0">@imdean</h6>
-                        </div>
-                    </div>
-                    <div class="recent-message d-flex px-4 py-3">
-                        <div class="avatar avatar-lg">
-                            <img src="../../assets/compiled/jpg/1.jpg">
-                        </div>
-                        <div class="name ms-4">
-                            <h5 class="mb-1">John Dodol</h5>
-                            <h6 class="text-muted mb-0">@dodoljohn</h6>
-                        </div>
-                    </div>
-                    <div class="px-4">
-                        <button class='btn btn-block btn-xl btn-outline-primary font-bold mt-3'>Start Conversation</button>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header">
-                    <h4>Visitors Profile</h4>
-                </div>
-                <div class="card-body">
-                    <div id="chart-visitors-profile"></div>
-                </div>
-            </div>
+            <!-- Tambahkan CDN FontAwesome -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+            <!-- Script untuk Chart -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                var ctx = document.getElementById('chart-profile-visit').getContext('2d');
+                var chartProfileVisit = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: <?= $labels_json ?>, // Labels tanggal
+                        datasets: [{
+                            label: 'Jumlah Booking',
+                            data: <?= $values_json ?>, // Data jumlah booking
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            fill: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Tanggal'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Jumlah'
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
         </div>
     </section>
 </div>

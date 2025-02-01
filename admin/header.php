@@ -12,7 +12,7 @@ if (empty($_SESSION['USER'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title_web ?> - Rental Mobil</title>
+    <title><?= $title_web ?> - Rentcar-Antariks</title>
 
     <meta name="base_url" content="<?php echo $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST']; ?>">
 
@@ -35,7 +35,11 @@ if (empty($_SESSION['USER'])) {
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="dashboard.php"><img src="<?php echo $url; ?>assets/compiled/svg/logo.svg" alt="Logo" srcset=""></a>
+                            <a href="dashboard.php">
+                                <img src="<?php echo $url; ?>images/rentcar.svg" alt="Logo" style="width: 100px; height: auto; ">
+                            </a>
+
+
                         </div>
                         <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true"
@@ -82,12 +86,12 @@ if (empty($_SESSION['USER'])) {
 
 
                         </li>
-                        <li class="sidebar-item <?php if ($title_web == 'Home') {
+                        <li class="sidebar-item <?php if ($title_web == 'Informasi Page') {
                                                     echo 'active';
                                                 } ?>">
                             <a href="<?php echo $url ?>admin/informasi/home.php" class='sidebar-link'>
                                 <i class="bi bi-house-fill"></i>
-                                <span>Home</span>
+                                <span>Informasi Page</span>
                             </a>
                         </li>
 
